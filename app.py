@@ -1,7 +1,11 @@
+# Fix SQLite version issue - MUST BE AT VERY TOP
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import streamlit as st
 import os
 
-# Set page config first
 st.set_page_config(
     page_title="Biosignal Data Analysis App",
     page_icon="🧠",
@@ -9,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Diagnostic output to help identify issues
+# Diagnostic output
 st.sidebar.write(f"Current directory: {os.getcwd()}")
 st.sidebar.write(f"Files in directory: {', '.join(os.listdir())}")
 
@@ -27,22 +31,17 @@ if main_selection == "Home":
     """)
 
 elif main_selection == "BioSignal Analysis":
-    # Lazy import for dashboard
     try:
         from dashboard import gsr_ppg_app
     except ImportError as e:
         st.error(f"Failed to import dashboard module: {e}")
         st.stop()
     
-    sub_selection = st.sidebar.selectbox("Select Analysis Type", [
-        "GSR/PPG Analysis"
-    ])
-
+    sub_selection = st.sidebar.selectbox("Select Analysis Type", ["GSR/PPG Analysis"])
     if sub_selection == "GSR/PPG Analysis":
         gsr_ppg_app()
 
 elif main_selection == "Offline Assistant":
-    # Lazy import for chatbot with error handling
     try:
         from chatBot import run_chatbot
         run_chatbot()
