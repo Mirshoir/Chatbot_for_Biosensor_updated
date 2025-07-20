@@ -5,6 +5,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import streamlit as st
 import os
+import time
 
 st.set_page_config(
     page_title="Biosignal Data Analysis App",
@@ -42,12 +43,29 @@ elif main_selection == "BioSignal Analysis":
         gsr_ppg_app()
 
 elif main_selection == "Offline Assistant":
+    # Initialize chatbot in session state
+    if 'chatbot_initialized' not in st.session_state:
+        st.session_state.chatbot_initialized = False
+    
     try:
         from chatBot import run_chatbot
-        run_chatbot()
+        
+        if not st.session_state.chatbot_initialized:
+            with st.spinner("Initializing chatbot components..."):
+                # Initialize chatbot
+                run_chatbot()
+                st.session_state.chatbot_initialized = True
+                time.sleep(1)  # Allow UI to update
+                
+        if st.session_state.chatbot_initialized:
+            run_chatbot()
+            
     except ImportError as e:
         st.error(f"Failed to import chatbot module: {e}")
-        st.error("Please ensure chatBot.py exists in the current directory")
-        st.code("Current files: " + ", ".join(os.listdir()))
+        st.error("Please ensure chatBot.py exists and has the correct dependencies")
+        st.code("pip install gradio_client httpx")
+        
     except Exception as e:
         st.error(f"Error in chatbot: {e}")
+        if "gradio_client" in str(e):
+            st.error("Please ensure gradio_client is installed in requirements.txt")
