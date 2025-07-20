@@ -79,3 +79,4 @@ pytest~=8.3.3
 
 # FIX THIS: pyshimmer not found in logs
 pyshimmer~=0.6.0            # Updated from 0.4.0 to available version
+pysqlite3-binary
