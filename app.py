@@ -1,5 +1,7 @@
 import streamlit as st
+import os
 
+# Set page config first
 st.set_page_config(
     page_title="Biosignal Data Analysis App",
     page_icon="🧠",
@@ -7,9 +9,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Import only the necessary modules
-from dashboard import gsr_ppg_app
-from chatBot import run_chatbot
+# Diagnostic output to help identify issues
+st.sidebar.write(f"Current directory: {os.getcwd()}")
+st.sidebar.write(f"Files in directory: {', '.join(os.listdir())}")
 
 # --- Sidebar Navigation ---
 st.sidebar.title("Navigation")
@@ -25,6 +27,13 @@ if main_selection == "Home":
     """)
 
 elif main_selection == "BioSignal Analysis":
+    # Lazy import for dashboard
+    try:
+        from dashboard import gsr_ppg_app
+    except ImportError as e:
+        st.error(f"Failed to import dashboard module: {e}")
+        st.stop()
+    
     sub_selection = st.sidebar.selectbox("Select Analysis Type", [
         "GSR/PPG Analysis"
     ])
@@ -33,4 +42,13 @@ elif main_selection == "BioSignal Analysis":
         gsr_ppg_app()
 
 elif main_selection == "Offline Assistant":
-    run_chatbot()
+    # Lazy import for chatbot with error handling
+    try:
+        from chatBot import run_chatbot
+        run_chatbot()
+    except ImportError as e:
+        st.error(f"Failed to import chatbot module: {e}")
+        st.error("Please ensure chatBot.py exists in the current directory")
+        st.code("Current files: " + ", ".join(os.listdir()))
+    except Exception as e:
+        st.error(f"Error in chatbot: {e}")
