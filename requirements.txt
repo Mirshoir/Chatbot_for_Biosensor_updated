@@ -1,6 +1,6 @@
+# Core Dependencies
 chromadb~=0.5.13
 streamlit~=1.40.0
-
 numpy~=1.26.4
 typing_extensions~=4.12.2
 pillow~=10.4.0
@@ -32,11 +32,10 @@ MarkupSafe~=2.1.5
 joblib~=1.4.2
 certifi~=2024.8.30
 scikit-learn~=1.5.2
-pandas==1.5.3
+pandas==1.5.3               # FIX: Update to >=2.0.0 for Python 3.11+ compatibility
 networkx~=3.3
 idna~=3.10
 pyparsing~=3.1.4
-
 Pygments~=2.18.0
 nltk~=3.9.1
 fastapi~=0.115.0
@@ -47,19 +46,16 @@ bitsandbytes~=0.44.0
 langchain~=0.3.3
 distro~=1.9.0
 python-dotenv~=1.0.1
-pandas==1.5.3
-bs4~=0.0.2
-
+bs4~=0.0.2                  # FIX: Should be beautifulsoup4 (see below)
 neurokit2~=0.2.10
 langchain-ollama==0.2.0
-
 cffi~=1.17.1
 defusedxml~=0.7.1
 ipython~=8.29.0
 jupyter~=1.1.1
 ipywidgets~=8.1.5
 notebook~=7.2.2
-torch~=2.4.1
+torch~=2.4.1                # FIX: Update to >=2.5.0,<2.8.0 for Python 3.11
 setuptools~=68.2.0
 platformdirs~=4.3.6
 onnxruntime~=1.19.2
@@ -74,14 +70,12 @@ safetensors~=0.4.5
 transformers~=4.46.3
 accelerate~=0.34.2
 sentencepiece~=0.2.0
-beautifulsoup4~=4.12.3
+beautifulsoup4~=4.12.3      # Correct package name for bs4
 pytesseract~=0.3.13
 opencv-python~=4.10.0.84
 aiohttp~=3.10.7
 bleak~=0.22.3
 pytest~=8.3.3
-pyshimmer~=0.4.0
-pyserial~=3.5
-toml~=0.10.2
-typing~=3.7.4.3
-mistralai~=0.4.2
+
+# FIX THIS: pyshimmer not found in logs
+pyshimmer~=0.6.0            # Updated from 0.4.0 to available version
