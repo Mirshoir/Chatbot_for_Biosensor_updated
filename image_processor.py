@@ -1,6 +1,4 @@
-#image_processor.py
-
-from gradio_client import Client, handle_file
+from gradio_client import Client
 
 def analyze_image_with_gradio(image_path, prompt="""You are a Vision-Language Model assistant.
 Your task is to detect any visual signs that might affect the user's cognitive load.
@@ -14,16 +12,18 @@ Output a short summary:
 - Environment distractions: [describe]
 - User posture: [describe]
 - Facial cues: [describe]
-- Any other factor that might impact focus. """):
+- Any other factor that might impact focus.
+"""):
     try:
         print("Initializing primary Gradio client (ybelkada/llava-1.5-dlai)...")
         client = Client("ybelkada/llava-1.5-dlai")
 
-        result = client.predict(
-            text=prompt,
-            image=handle_file(image_path),
-            api_name="/predict"
-        )
+        with open(image_path, "rb") as img_file:
+            result = client.predict(
+                prompt,       # text input
+                img_file,     # binary file object (image)
+                api_name="/predict"
+            )
 
         print("Received response from primary client.")
         return result
@@ -35,15 +35,16 @@ Output a short summary:
         try:
             client = Client("Mirshoir/llava-1.5-dlai")
 
-            result = client.predict(
-                text=prompt,
-                image=handle_file(image_path),
-                api_name="/predict"
-            )
+            with open(image_path, "rb") as img_file:
+                result = client.predict(
+                    prompt,
+                    img_file,
+                    api_name="/predict"
+                )
 
             print("Received response from fallback client.")
             return result
 
         except Exception as e2:
             print(f"Fallback client error: {e2}")
-            return f"Error using both clients: {e} | {e2}"
+            return {"error": f"Both clients failed. Errors: {e} | {e2}"}
