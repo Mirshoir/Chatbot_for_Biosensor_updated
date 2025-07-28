@@ -1,6 +1,8 @@
 from gradio_client import Client
 
-def analyze_image_with_gradio(image_path, prompt="""You are a Vision-Language Model assistant.
+def analyze_image_with_gradio(
+    image_path,
+    prompt="""You are a Vision-Language Model assistant.
 Your task is to detect any visual signs that might affect the user's cognitive load.
 Analyze the image for:
 - Distractions in the background (other screens, phone, clutter)
@@ -13,7 +15,9 @@ Output a short summary:
 - User posture: [describe]
 - Facial cues: [describe]
 - Any other factor that might impact focus.
-"""):
+""",
+    timeout_seconds: int = 30
+):
     try:
         print("Initializing primary Gradio client (ybelkada/llava-1.5-dlai)...")
         client = Client("ybelkada/llava-1.5-dlai")
@@ -22,7 +26,8 @@ Output a short summary:
             result = client.predict(
                 prompt,       # text input
                 img_file,     # binary file object (image)
-                api_name="/predict"
+                api_name="/predict",
+                timeout=timeout_seconds
             )
 
         print("Received response from primary client.")
@@ -39,7 +44,8 @@ Output a short summary:
                 result = client.predict(
                     prompt,
                     img_file,
-                    api_name="/predict"
+                    api_name="/predict",
+                    timeout=timeout_seconds
                 )
 
             print("Received response from fallback client.")
