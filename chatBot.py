@@ -372,7 +372,8 @@ def run_chatbot():
 
         # Image Capture and Analysis
         st.subheader("📸 Classroom Image Analysis")
-        img_file = st.camera_input("Capture classroom image for VLM analysis", key="camera_input")
+        # Changed key here to fix duplicate key issue:
+        img_file = st.camera_input("Capture classroom image for VLM analysis", key="camera_input_1")
 
         if img_file is not None:
             if (st.session_state.last_captured_image != img_file.getvalue() or
@@ -483,50 +484,24 @@ def run_chatbot():
             teacher_feedback_ui()
 
     # Processing status and cancellation
-    if st.session_state.get('deepmind_processing'):
-        if st.session_state.processing_thread.is_alive():
-            # Show spinner with timeout warning
-            elapsed = time.time() - st.session_state.processing_start_time
-            time_left = max(0, 85 - int(elapsed))
-
-            with st.spinner(f"🧠 Generating support plan... Time left: {time_left}s"):
-                time.sleep(0.1)  # Allow UI update
-
-            # Handle timeout
-            if elapsed > 85:
-                st.error("Processing timed out. Please try again.")
-                logger.warning("DeepMind solution timed out")
-                st.session_state.deepmind_processing = False
-                st.session_state.deepmind_error = "⚠️ Processing timed out"
-                st.session_state.processing_thread = None
-                st.session_state.result_queue = None
+    if st.session_state.deepmind_processing:
+        if st.session_state.processing_thread and st.session_state.processing_thread.is_alive():
+            st.info("⏳ Generating cognitive support plan... Please wait.")
         else:
-            # Processing complete
             try:
-                response = st.session_state.result_queue.get_nowait()
-                if response.startswith("⚠️"):
-                    st.session_state.deepmind_error = response
-                    logger.error(f"DeepMind error: {response}")
-                else:
-                    st.session_state.deepmind_response = response
-                    st.session_state.chat_history.append((st.session_state.current_user_input, response))
-                    save_chat_to_chroma(st.session_state.current_user_input, response)
-                    logger.info("DeepMind solution displayed successfully")
+                result = st.session_state.result_queue.get_nowait()
+                st.session_state.deepmind_response = result
+                st.session_state.deepmind_processing = False
+                st.success("✅ Cognitive support plan generated!")
+                logger.info("DeepMind solution generated successfully")
             except queue.Empty:
-                st.session_state.deepmind_error = "⚠️ No response generated (queue empty)"
-                logger.error("Result queue was empty")
+                st.info("⏳ Waiting for processing results...")
 
-            # Reset processing state
-            st.session_state.deepmind_processing = False
-            st.session_state.processing_thread = None
-            st.session_state.result_queue = None
-
-    # Conversation history
-    if st.session_state.chat_history:
-        st.subheader("🗨️ Conversation History")
-        for user_msg, bot_msg in reversed(st.session_state.chat_history):
-            st.markdown(f"**You:** {user_msg}")
-            st.markdown(f"**Avicenna:** {bot_msg}")
+    # Save chat messages to ChromaDB
+    if st.session_state.deepmind_response and st.session_state.current_user_input:
+        save_chat_to_chroma(st.session_state.current_user_input, st.session_state.deepmind_response)
+        # Clear current input after saving
+        st.session_state.current_user_input = None
 
 
 if __name__ == "__main__":
